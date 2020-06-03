@@ -6,10 +6,10 @@ import re
 
 class Parole:
     def __init__(self, length):
-        self.filepath = 'slowa.txt'
         self.length = length
         self.consonants = re.compile(r"[bcćdfghjklłmnńprstwxzźż]{" + str(length) + ",}", re.UNICODE)
         self.doubles = re.compile(r"rz|cz|sz|dz|dź|dż|ch", re.UNICODE)
+        self.filepath = 'slowa.txt'
 
     def get(self):
         cores = {}
