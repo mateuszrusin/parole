@@ -7,25 +7,41 @@ import re
 class Parole:
     def __init__(self, length):
         self.length = length
-        self.consonants = re.compile(r"[bcćdfghjklłmnńprstwxzźż]{" + str(length) + ",}", re.UNICODE)
+        self.consonants = re.compile(r"[bcćdfghjklłmnńprstwxzźż]", re.UNICODE)
         self.doubles = re.compile(r"rz|cz|sz|dz|dź|dż|ch", re.UNICODE)
         self.filepath = 'slowa.txt'
+
+    def show(self, items):
+        print(self.json(items))
+
+    def count_consonants(self, word):
+        # Przechodzi przez słowo, zliczając spółgłoski i uwzględniając podwójne spółgłoski
+        count = 0
+        i = 0
+        while i < len(word):
+            if self.doubles.match(word, i):
+                count += 1
+                i += 2  # Przeskakujemy podwójną spółgłoskę
+            elif self.consonants.match(word[i]):
+                count += 1
+                i += 1
+            else:
+                count = 0
+                i += 1
+
+            if count >= self.length:
+                return True
+
+        return False
 
     def get(self):
         cores = {}
         with io.open(self.filepath, mode="r", encoding="utf-8") as fp:
             for line in fp:
-                for frag in self.consonants.findall(line):
-                    if len(frag) - len(self.doubles.findall(frag)) >= self.length:
-                        cores.setdefault(frag.upper(), []).append(line.strip())
+                if self.count_consonants(line):
+                    cores.setdefault(len(line), []).append(line.strip())
+
         return cores
-
-    def show(self, items):
-        print(self.json(items))
-
-    def save(self, items):
-        with io.open('parole_{}_consonants.txt'.format(self.length), mode="w", encoding="utf-8") as fp:
-            fp.write(self.json(items))
 
     @staticmethod
     def json(items):
